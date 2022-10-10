@@ -58,8 +58,7 @@ it('can call `find` on the USPS driver', function () {
 <ServiceTypeCode>836</ServiceTypeCode>
 <Status>USPS in possession of item</Status>
 <StatusCategory>Accepted</StatusCategory>
-<StatusSummary>USPS is now in possession of your item as of 9:00 am on July 6, 2022 in
-PHILADELPHIA, PA 19153.</StatusSummary>
+<StatusSummary>USPS is now in possession of your item as of 9:00 am on July 6, 2022 in PHILADELPHIA, PA 19153.</StatusSummary>
 <TABLECODE>T</TABLECODE>
 <TrackSummary>
 <EventTime>9:00 am</EventTime>
