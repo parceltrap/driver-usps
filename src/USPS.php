@@ -12,7 +12,7 @@ use ParcelTrap\Contracts\Driver;
 use ParcelTrap\DTOs\TrackingDetails;
 use ParcelTrap\Enums\Status;
 use ParcelTrap\Exceptions\ApiAuthenticationFailedException;
-use RuntimeException;
+use ParcelTrap\USPS\Exceptions\USPSErrorResponseException;
 use SimpleXMLElement;
 
 class USPS implements Driver
@@ -52,17 +52,18 @@ class USPS implements Driver
             simplexml_load_string($this->getCleanedBody($response->getBody()->getContents()))
         ), true, 512, JSON_THROW_ON_ERROR);
 
-        if (
-            isset($json['Description']) &&
-            str_starts_with((string) $json['Description'], 'API Authorization failure')
-        ) {
-            throw new ApiAuthenticationFailedException($this);
+        if (isset($json['Description'])) {
+            throw str_starts_with((string) $json['Description'], 'API Authorization failure') ?
+                new ApiAuthenticationFailedException($this) :
+                new USPSErrorResponseException((string) $json['Description']);
         }
 
-        assert(isset($json['TrackInfo']), 'The tracking information is missing from the response');
+        if (! isset($json['TrackInfo'])) {
+            throw new USPSErrorResponseException('The tracking information is missing from the response');
+        }
 
         if (isset($json['TrackInfo']['Error']['Description'])) {
-            throw new RuntimeException((string) $json['TrackInfo']['Error']['Description']);
+            throw new USPSErrorResponseException((string) $json['TrackInfo']['Error']['Description']);
         }
 
         $json = $json['TrackInfo'];
