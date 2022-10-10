@@ -98,8 +98,7 @@ XML
         ->identifier->toBe('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
         ->status->toBe(Status::In_Transit)
         ->status->description()->toBe('In Transit')
-        ->summary->toBe('USPS is now in possession of your item as of 9:00 am on July 6, 2022 in
-PHILADELPHIA, PA 19153.')
+        ->summary->toBe('USPS is now in possession of your item as of 9:00 am on July 6, 2022 in PHILADELPHIA, PA 19153.')
         ->estimatedDelivery->toEqual(null)
         ->raw->toBeArray()->not->toBeEmpty();
 });
