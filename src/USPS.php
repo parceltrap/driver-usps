@@ -47,30 +47,45 @@ class USPS implements Driver
             ],
         ]);
 
-        $xml = simplexml_load_string($this->getCleanedBody($response->getBody()->getContents()));
+        /** @var array $json */
+        $json = json_decode((string) json_encode(
+            simplexml_load_string($this->getCleanedBody($response->getBody()->getContents()))
+        ), true, 512, JSON_THROW_ON_ERROR);
 
-        if (isset($xml->Description) && str_starts_with((string) $xml->Description, 'API Authorization failure')) {
+        if (
+            isset($json['Description']) &&
+            str_starts_with((string) $json['Description'], 'API Authorization failure')
+        ) {
             throw new ApiAuthenticationFailedException($this);
         }
 
-        if (isset($xml->TrackInfo->Error->Description)) {
-            throw new RuntimeException((string) $xml->TrackInfo->Error->Description);
+        assert(isset($json['TrackInfo']), 'The tracking information is missing from the response');
+
+        if (isset($json['TrackInfo']['Error']['Description'])) {
+            throw new RuntimeException((string) $json['TrackInfo']['Error']['Description']);
         }
 
+        $json = $json['TrackInfo'];
+
+        assert(isset($json['@attributes']['ID']), 'The identifier is missing from the response');
+        assert(isset($json['Status']), 'The status is missing from the response');
+        assert(isset($json['StatusSummary']), 'The status summary is missing from the response');
+
         return new TrackingDetails(
-            identifier: $identifier,
-            status: $this->mapStatus($xml->Status ?? 'unknown'), // TODO
-            summary: (string) $xml->StatusSummary,
-            estimatedDelivery: new DateTimeImmutable($xml->Delivery ?? 'now'),
-            events: (array) $xmlRequest->TrackSummary,
-            raw: (array) $xml,
+            identifier: $json['@attributes']['ID'],
+            status: $this->mapStatus($json['Status'] ?? 'unknown'),
+            summary: $json['StatusSummary'] ?? null,
+            estimatedDelivery: isset($json['PredictedDeliveryDate']) ? new DateTimeImmutable($json['PredictedDeliveryDate']) : null,
+            events: $xmlRequest['TrackSummary'] ?? [],
+            raw: $json,
         );
     }
 
     private function mapStatus(string $status): Status
     {
         return match ($status) {
-            'transit' => Status::In_Transit,
+            'Delivered' => Status::Delivered,
+            'USPS in possession of item' => Status::In_Transit,
             default => Status::Unknown,
         };
     }
@@ -89,7 +104,7 @@ class USPS implements Driver
     private function getCleanedBody(string $contents): string
     {
         return str_replace([
-            '&reg;'
+            '&reg;',
         ], [
             '',
         ], $contents);

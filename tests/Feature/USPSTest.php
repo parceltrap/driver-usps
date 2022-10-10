@@ -94,14 +94,15 @@ XML
         client: $httpClient,
     ));
 
-    expect($this->app->make(Factory::class)->driver('usps')->find('ABCDEFG12345'))
+    expect($this->app->make(Factory::class)->driver('usps')->find('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'))
         ->toBeInstanceOf(TrackingDetails::class)
-        ->identifier->toBe('ABCDEFG12345')
+        ->identifier->toBe('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
         ->status->toBe(Status::In_Transit)
         ->status->description()->toBe('In Transit')
-        ->summary->toBe('Package status is: In Transit')
-        ->estimatedDelivery->toEqual(new DateTimeImmutable('2022-01-01T00:00:00+00:00'))
-        ->raw->toBe($trackingDetails);
+        ->summary->toBe('USPS is now in possession of your item as of 9:00 am on July 6, 2022 in
+PHILADELPHIA, PA 19153.')
+        ->estimatedDelivery->toEqual(null)
+        ->raw->toBeArray()->not->toBeEmpty();
 });
 
 it('can handle auth failure when calling `find` on the USPS driver', function () {
