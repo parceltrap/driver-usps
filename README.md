@@ -23,7 +23,8 @@ Add the following to the `drivers` section of your `config/parceltrap.php` file:
 
 ```
 'usps' => [
-    'api_key' => env('PARCELTRAP_SKELETON_API_KEY'),
+    'api_key' => env('PARCELTRAP_USPS_API_KEY'),
+    'source_id' => env('PARCELTRAP_USPS_SOURCE_ID', env('APP_NAME')),
 ],
 ```
 
