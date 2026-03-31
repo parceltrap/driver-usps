@@ -17,16 +17,16 @@ use SimpleXMLElement;
 
 class USPS implements Driver
 {
-    public const IDENTIFIER = 'usps';
+    public const string IDENTIFIER = 'usps';
 
-    public const BASE_URI = 'https://secure.shippingapis.com';
+    public const string BASE_URI = 'https://secure.shippingapis.com';
 
     private ClientInterface $client;
 
     public function __construct(
         private readonly string $apiKey,
         private readonly string $sourceId,
-        ?ClientInterface $client = null
+        ClientInterface|null $client = null
     ) {
         $this->client = $client ?? GuzzleFactory::make(['base_uri' => self::BASE_URI]);
     }

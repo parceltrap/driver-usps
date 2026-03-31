@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ParcelTrap\USPS;
 
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\ServiceProvider;
 use ParcelTrap\Contracts\Factory;
 use ParcelTrap\ParcelTrap;
@@ -16,9 +17,9 @@ class USPSServiceProvider extends ServiceProvider
         /** @var ParcelTrap $factory */
         $factory = $this->app->make(Factory::class);
 
-        $factory->extend(USPS::IDENTIFIER, function () {
+        $factory->extend(USPS::IDENTIFIER, function (Container $container) {
             /** @var Repository $config */
-            $config = $this->app->make(Repository::class);
+            $config = $container->make(Repository::class);
 
             return new USPS(
                 /** @phpstan-ignore-next-line */
