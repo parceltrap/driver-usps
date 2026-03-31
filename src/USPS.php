@@ -74,9 +74,9 @@ class USPS implements Driver
 
         return new TrackingDetails(
             identifier: $json['@attributes']['ID'],
-            status: $this->mapStatus($json['Status'] ?? 'unknown'),
             summary: $json['StatusSummary'] ?? null,
             estimatedDelivery: isset($json['PredictedDeliveryDate']) ? new DateTimeImmutable($json['PredictedDeliveryDate']) : null,
+            status: $this->mapStatus($json['Status'] ?? 'unknown'),
             events: $xmlRequest['TrackSummary'] ?? [],
             raw: $json,
         );
